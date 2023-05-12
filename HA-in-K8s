@@ -1,0 +1,24 @@
+HA in Kubernetes
+
+To achieve High availability of K8s. We will need to double the number of control plane
+components. This allows to eliminate the single point of failure.
+
+Generally we will have the API server, deployed on two different servers
+and we will front end with a Load Balancer.
+
+When communicating to the HA K8s cluster, we will be communicating with the 
+Load Balancer. The worker nodes kubelets will also be communicating to
+the same Load Balancer. 
+
+The other control plane components, except for ETCD will also be made available on both these control plane servers.
+
+For ETCD, we can have two different models
+a) Stacked ETCD 
+b) External ETCD
+
+In stacked ETCD, the ETCD store sits inside the control plane nodes
+while in External ETCD , the ETCD store sits outside the control 
+plane nodes and into its own separate node. 
+
+In EKS, we have external ETCD, 2 API server nodes and 3 ETCD nodes
+API server front ended by NLB and offers 99.95% SLA
