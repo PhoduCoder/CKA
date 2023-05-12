@@ -14,7 +14,7 @@ pod/coredns-6d4b75cb6d-hmgff evicted
 node/k8s-control drained
 
 
-**Upgrade the kubeadm binary
+**Upgrade the kubeadm binary**
 
 cloud_user@k8s-control:~$ kubeadm version 
 kubeadm version: &version.Info{Major:"1", Minor:"24", GitVersion:"v1.24.0", GitCommit:"4ce5a8954017644c5420bae81d72b09b735c21f0", GitTreeState:"clean", BuildDate:"2022-05-03T13:44:24Z", GoVersion:"go1.18.1", Compiler:"gc", Platform:"linux/amd64"}
