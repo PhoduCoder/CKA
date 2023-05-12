@@ -238,6 +238,13 @@ Setting up kubectl (1.25.9-00) ...
 Setting up kubelet (1.25.9-00) ...
 cloud_user@k8s-control:~$ 
 
+**May want to reload the system config and restart kubelet
+   
+cloud_user@k8s-control:~$ sudo systemctl daemon-reload
+cloud_user@k8s-control:~$ sudo systemctl restart kubelet
+cloud_user@k8s-control:~$ 
+   
+   
 **Finally uncordon the control plane node
 kubectl uncordon k8s-control
 
