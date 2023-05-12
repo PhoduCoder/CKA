@@ -1,0 +1,11 @@
+##Backing up and restoring ETCD data 
+
+etcdctl command is used to backup the ETCD data to a file
+You can also use this command to restore the snapshot
+
+====
+etcdctl snapshot save 
+
+etcdctl snapshot restore 
+
+These commands take a lot of params
