@@ -1,0 +1,21 @@
+Cordoning and Draining a K8s Node 
+
+Say you want to perform some maintenance on a node on your cluster.
+but you also want to ensure that your applications running on clusters 
+are not affected. 
+
+First, you will start by cordoning a node, this will mean 
+that the k8s will mark this node as unschedulable.
+
+Next, to gracefully terminate the applications pods running on your 
+k8s node, you can do use "kubectl drain <node-name>" command. 
+
+Note that if you have daemon sets running, then this 
+won't error out and you will need to add a ignore daemonsets flag 
+
+kubectl drain <node-name> --ignore-daemonsets
+
+Once you have finished the maintenance, you can instruct the k8s
+to start reconsidering this node using the uncordon command
+
+kubectl uncordon <node-name>
