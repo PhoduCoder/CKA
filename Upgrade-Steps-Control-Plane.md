@@ -41,6 +41,7 @@ cloud_user@k8s-control:~$
 cloud_user@k8s-control:~$ sudo apt-mark unhold kubeadm &&  sudo apt-get update && sudo apt-get install -y kubeadm=1.25.9-00 &&  sudo apt-mark hold kubeadm
 
 **Output**
+
 kubeadm was already not hold.
 Hit:1 http://us-west-1.ec2.archive.ubuntu.com/ubuntu focal InRelease
 Hit:2 http://us-west-1.ec2.archive.ubuntu.com/ubuntu focal-updates InRelease                                                                         
@@ -137,6 +138,7 @@ cloud_user@k8s-control:~$
 cloud_user@k8s-control:~$ sudo kubeadm upgrade apply v1.25.9
 
 **Output**
+
 [upgrade/config] Making sure the configuration is correct:
 [upgrade/config] Reading configuration from the cluster...
 [upgrade/config] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -o yaml'
@@ -174,7 +176,7 @@ cloud_user@k8s-control:~$ sudo kubeadm upgrade apply v1.25.9
 [upgrade/staticpods] Component "kube-apiserver" upgraded successfully!
 [upgrade/staticpods] Preparing for "kube-controller-manager" upgrade
 [upgrade/staticpods] Renewing controller-manager.conf certificate
-[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/kube-controller-manager.yaml" and backed up old manifest to "/etc/kubernetes/tmp/kubeadm-backup-manifests-2023-05-12-21-30-11/kube-controller-manager.yaml"
+[upgrade/staticpods] Moved new manifest to "/etc/kubernetes/manifests/kube-controller-manager.yaml" and backed up old manifest to   "/etc/kubernetes/tmp/kubeadm-backup-manifests-2023-05-12-21-30-11/kube-controller-manager.yaml"
 [upgrade/staticpods] Waiting for the kubelet to restart the component
 [upgrade/staticpods] This might take a minute or longer depending on the component/version gap (timeout 5m0s)
 [apiclient] Found 1 Pods for label selector component=kube-controller-manager
