@@ -1,5 +1,5 @@
 
-## List all Pods with worker nodes 
+** ## List all Pods with worker nodes **
 cloud_user@k8s-control:~$ kubectl get pods -o=wide
 NAME                    READY   STATUS    RESTARTS   AGE     IP               NODE          NOMINATED NODE   READINESS GATES
 test                    1/1     Running   0          2m19s   192.168.126.1    k8s-worker2   <none>           <none>
@@ -15,7 +15,7 @@ test-764c85dd84-x5qrq   1/1     Running   0          117s    192.168.194.65   k8
 test-764c85dd84-zbrmr   1/1     Running   0          93s     192.168.126.2    k8s-worker2   <none>           <none>
 cloud_user@k8s-control:~$ 
 
-##List all nodes in the cluster
+** ##List all nodes in the cluster **
 cloud_user@k8s-control:~$ kubectl get nodes
 NAME          STATUS   ROLES           AGE   VERSION
 k8s-control   Ready    control-plane   61m   v1.24.0
@@ -23,7 +23,7 @@ k8s-worker1   Ready    <none>          57m   v1.24.0
 k8s-worker2   Ready    <none>          57m   v1.24.0
 cloud_user@k8s-control:~$ 
 
-#Cordon a Node k8s-worker2 marking it as unschedulable
+** #Cordon a Node k8s-worker2 marking it as unschedulable **
 cloud_user@k8s-control:~$ kubectl cordon k8s-worker2
 node/k8s-worker2 cordoned
 cloud_user@k8s-control:~$ 
@@ -33,7 +33,7 @@ k8s-control   Ready                      control-plane   61m   v1.24.0
 k8s-worker1   Ready                      <none>          57m   v1.24.0
 k8s-worker2   Ready,SchedulingDisabled   <none>          57m   v1.24.0
 
-#Notice that the pods are still running on the cordoned node
+** #Notice that the pods are still running on the cordoned node **
 cloud_user@k8s-control:~$ kubectl get pods -o=wide
 NAME                    READY   STATUS    RESTARTS   AGE     IP               NODE          NOMINATED NODE   READINESS GATES
 test                    1/1     Running   0          3m12s   192.168.126.1    k8s-worker2   <none>           <none>
@@ -48,7 +48,7 @@ test-764c85dd84-p6spp   1/1     Running   0          2m2s    192.168.126.9    k8
 test-764c85dd84-x5qrq   1/1     Running   0          2m50s   192.168.194.65   k8s-worker1   <none>           <none>
 test-764c85dd84-zbrmr   1/1     Running   0          2m26s   192.168.126.2    k8s-worker2   <none>           <none>
 
-#Now we try to execute the drain command
+** #Now we try to execute the drain command **
 cloud_user@k8s-control:~$ kubectl drain k8s-worker2
 node/k8s-worker2 already cordoned
 error: unable to drain node "k8s-worker2" due to error:[cannot delete Pods declare no controller (use --force to override): default/test, cannot delete DaemonSet-managed Pods (use --ignore-daemonsets to ignore): kube-system/calico-node-znlp6, kube-system/kube-proxy-h97mz], continuing command...
@@ -64,8 +64,8 @@ There are pending nodes to be drained:
  k8s-worker2
 cannot delete Pods declare no controller (use --force to override): default/test
 
-#Notice that even after using the --ignore-daemonsets to our command, we are unable to drain the node. This is because of the single pod that was
-created. Once we delete the pod, we should be able to drain the node using the kubectl drain command.
+** #Notice that even after using the --ignore-daemonsets to our command, we are unable to drain the node. This is because of the single pod that was
+created. Once we delete the pod, we should be able to drain the node using the kubectl drain command. **
 
 cloud_user@k8s-control:~$ 
 cloud_user@k8s-control:~$ kubectl get pods 
@@ -133,7 +133,7 @@ pod/test-764c85dd84-gxt9z evicted
 node/k8s-worker2 drained
 cloud_user@k8s-control:~$ 
 
-#Also notice that how the pods gracefully shifted to the second worker node
+** #Also notice that how the pods gracefully shifted to the second worker node **
 cloud_user@k8s-control:~$ 
 cloud_user@k8s-control:~$ kubectl get pods -o=wide
 NAME                    READY   STATUS    RESTARTS   AGE    IP               NODE          NOMINATED NODE   READINESS GATES
