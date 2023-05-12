@@ -1,0 +1,153 @@
+
+## List all Pods with worker nodes 
+cloud_user@k8s-control:~$ kubectl get pods -o=wide
+NAME                    READY   STATUS    RESTARTS   AGE     IP               NODE          NOMINATED NODE   READINESS GATES
+test                    1/1     Running   0          2m19s   192.168.126.1    k8s-worker2   <none>           <none>
+test-764c85dd84-2wqcd   1/1     Running   0          69s     192.168.126.4    k8s-worker2   <none>           <none>
+test-764c85dd84-5dkfc   1/1     Running   0          69s     192.168.126.7    k8s-worker2   <none>           <none>
+test-764c85dd84-6jbr5   1/1     Running   0          69s     192.168.126.5    k8s-worker2   <none>           <none>
+test-764c85dd84-cdlhz   1/1     Running   0          93s     192.168.126.3    k8s-worker2   <none>           <none>
+test-764c85dd84-dn52l   1/1     Running   0          69s     192.168.126.8    k8s-worker2   <none>           <none>
+test-764c85dd84-gxt9z   1/1     Running   0          69s     192.168.126.6    k8s-worker2   <none>           <none>
+test-764c85dd84-l7skq   1/1     Running   0          93s     192.168.194.66   k8s-worker1   <none>           <none>
+test-764c85dd84-p6spp   1/1     Running   0          69s     192.168.126.9    k8s-worker2   <none>           <none>
+test-764c85dd84-x5qrq   1/1     Running   0          117s    192.168.194.65   k8s-worker1   <none>           <none>
+test-764c85dd84-zbrmr   1/1     Running   0          93s     192.168.126.2    k8s-worker2   <none>           <none>
+cloud_user@k8s-control:~$ 
+
+##List all nodes in the cluster
+cloud_user@k8s-control:~$ kubectl get nodes
+NAME          STATUS   ROLES           AGE   VERSION
+k8s-control   Ready    control-plane   61m   v1.24.0
+k8s-worker1   Ready    <none>          57m   v1.24.0
+k8s-worker2   Ready    <none>          57m   v1.24.0
+cloud_user@k8s-control:~$ 
+
+#Cordon a Node k8s-worker2 marking it as unschedulable
+cloud_user@k8s-control:~$ kubectl cordon k8s-worker2
+node/k8s-worker2 cordoned
+cloud_user@k8s-control:~$ 
+cloud_user@k8s-control:~$ kubectl get nodes
+NAME          STATUS                     ROLES           AGE   VERSION
+k8s-control   Ready                      control-plane   61m   v1.24.0
+k8s-worker1   Ready                      <none>          57m   v1.24.0
+k8s-worker2   Ready,SchedulingDisabled   <none>          57m   v1.24.0
+
+#Notice that the pods are still running on the cordoned node
+cloud_user@k8s-control:~$ kubectl get pods -o=wide
+NAME                    READY   STATUS    RESTARTS   AGE     IP               NODE          NOMINATED NODE   READINESS GATES
+test                    1/1     Running   0          3m12s   192.168.126.1    k8s-worker2   <none>           <none>
+test-764c85dd84-2wqcd   1/1     Running   0          2m2s    192.168.126.4    k8s-worker2   <none>           <none>
+test-764c85dd84-5dkfc   1/1     Running   0          2m2s    192.168.126.7    k8s-worker2   <none>           <none>
+test-764c85dd84-6jbr5   1/1     Running   0          2m2s    192.168.126.5    k8s-worker2   <none>           <none>
+test-764c85dd84-cdlhz   1/1     Running   0          2m26s   192.168.126.3    k8s-worker2   <none>           <none>
+test-764c85dd84-dn52l   1/1     Running   0          2m2s    192.168.126.8    k8s-worker2   <none>           <none>
+test-764c85dd84-gxt9z   1/1     Running   0          2m2s    192.168.126.6    k8s-worker2   <none>           <none>
+test-764c85dd84-l7skq   1/1     Running   0          2m26s   192.168.194.66   k8s-worker1   <none>           <none>
+test-764c85dd84-p6spp   1/1     Running   0          2m2s    192.168.126.9    k8s-worker2   <none>           <none>
+test-764c85dd84-x5qrq   1/1     Running   0          2m50s   192.168.194.65   k8s-worker1   <none>           <none>
+test-764c85dd84-zbrmr   1/1     Running   0          2m26s   192.168.126.2    k8s-worker2   <none>           <none>
+
+#Now we try to execute the drain command
+cloud_user@k8s-control:~$ kubectl drain k8s-worker2
+node/k8s-worker2 already cordoned
+error: unable to drain node "k8s-worker2" due to error:[cannot delete Pods declare no controller (use --force to override): default/test, cannot delete DaemonSet-managed Pods (use --ignore-daemonsets to ignore): kube-system/calico-node-znlp6, kube-system/kube-proxy-h97mz], continuing command...
+There are pending nodes to be drained:
+ k8s-worker2
+cannot delete Pods declare no controller (use --force to override): default/test
+cannot delete DaemonSet-managed Pods (use --ignore-daemonsets to ignore): kube-system/calico-node-znlp6, kube-system/kube-proxy-h97mz
+cloud_user@k8s-control:~$ 
+cloud_user@k8s-control:~$ kubectl drain k8s-worker2 --ignore-daemonsets
+node/k8s-worker2 already cordoned
+error: unable to drain node "k8s-worker2" due to error:cannot delete Pods declare no controller (use --force to override): default/test, continuing command...
+There are pending nodes to be drained:
+ k8s-worker2
+cannot delete Pods declare no controller (use --force to override): default/test
+
+#Notice that even after using the --ignore-daemonsets to our command, we are unable to drain the node. This is because of the single pod that was
+created. Once we delete the pod, we should be able to drain the node using the kubectl drain command.
+
+cloud_user@k8s-control:~$ 
+cloud_user@k8s-control:~$ kubectl get pods 
+NAME                    READY   STATUS    RESTARTS   AGE
+test                    1/1     Running   0          8m42s
+test-764c85dd84-2wqcd   1/1     Running   0          7m32s
+test-764c85dd84-5dkfc   1/1     Running   0          7m32s
+test-764c85dd84-6jbr5   1/1     Running   0          7m32s
+test-764c85dd84-cdlhz   1/1     Running   0          7m56s
+test-764c85dd84-dn52l   1/1     Running   0          7m32s
+test-764c85dd84-gxt9z   1/1     Running   0          7m32s
+test-764c85dd84-l7skq   1/1     Running   0          7m56s
+test-764c85dd84-p6spp   1/1     Running   0          7m32s
+test-764c85dd84-x5qrq   1/1     Running   0          8m20s
+test-764c85dd84-zbrmr   1/1     Running   0          7m56s
+cloud_user@k8s-control:~$ 
+cloud_user@k8s-control:~$ 
+cloud_user@k8s-control:~$ kubectl delete pod test --force 
+warning: Immediate deletion does not wait for confirmation that the running resource has been terminated. The resource may continue to run on the cluster indefinitely.
+pod "test" force deleted
+cloud_user@k8s-control:~$ 
+cloud_user@k8s-control:~$ 
+cloud_user@k8s-control:~$ kubectl get pods 
+NAME                    READY   STATUS    RESTARTS   AGE
+test-764c85dd84-2wqcd   1/1     Running   0          7m43s
+test-764c85dd84-5dkfc   1/1     Running   0          7m43s
+test-764c85dd84-6jbr5   1/1     Running   0          7m43s
+test-764c85dd84-cdlhz   1/1     Running   0          8m7s
+test-764c85dd84-dn52l   1/1     Running   0          7m43s
+test-764c85dd84-gxt9z   1/1     Running   0          7m43s
+test-764c85dd84-l7skq   1/1     Running   0          8m7s
+test-764c85dd84-p6spp   1/1     Running   0          7m43s
+test-764c85dd84-x5qrq   1/1     Running   0          8m31s
+test-764c85dd84-zbrmr   1/1     Running   0          8m7s
+cloud_user@k8s-control:~$ 
+cloud_user@k8s-control:~$ 
+cloud_user@k8s-control:~$ 
+cloud_user@k8s-control:~$ kubectl get nodes 
+NAME          STATUS                     ROLES           AGE   VERSION
+k8s-control   Ready                      control-plane   67m   v1.24.0
+k8s-worker1   Ready                      <none>          63m   v1.24.0
+k8s-worker2   Ready,SchedulingDisabled   <none>          63m   v1.24.0
+cloud_user@k8s-control:~$ 
+cloud_user@k8s-control:~$ 
+cloud_user@k8s-control:~$ kubectl drain k8s-worker2 --ignore-daemonsets
+node/k8s-worker2 already cordoned
+WARNING: ignoring DaemonSet-managed Pods: kube-system/calico-node-znlp6, kube-system/kube-proxy-h97mz
+evicting pod default/test-764c85dd84-5dkfc
+evicting pod default/test-764c85dd84-zbrmr
+evicting pod default/test-764c85dd84-2wqcd
+evicting pod default/test-764c85dd84-dn52l
+evicting pod default/test-764c85dd84-6jbr5
+evicting pod default/test-764c85dd84-cdlhz
+evicting pod default/test-764c85dd84-gxt9z
+evicting pod default/test-764c85dd84-p6spp
+pod/test-764c85dd84-5dkfc evicted
+pod/test-764c85dd84-cdlhz evicted
+pod/test-764c85dd84-p6spp evicted
+pod/test-764c85dd84-dn52l evicted
+I0512 20:47:45.171599   47425 request.go:601] Waited for 1.079843051s due to client-side throttling, not priority and fairness, request: GET:https://172.31.43.117:6443/api/v1/namespaces/default/pods/test-764c85dd84-6jbr5
+pod/test-764c85dd84-6jbr5 evicted
+pod/test-764c85dd84-2wqcd evicted
+pod/test-764c85dd84-zbrmr evicted
+pod/test-764c85dd84-gxt9z evicted
+node/k8s-worker2 drained
+cloud_user@k8s-control:~$ 
+
+#Also notice that how the pods gracefully shifted to the second worker node
+cloud_user@k8s-control:~$ 
+cloud_user@k8s-control:~$ kubectl get pods -o=wide
+NAME                    READY   STATUS    RESTARTS   AGE    IP               NODE          NOMINATED NODE   READINESS GATES
+test-764c85dd84-4q8h6   1/1     Running   0          111s   192.168.194.74   k8s-worker1   <none>           <none>
+test-764c85dd84-4r2md   1/1     Running   0          111s   192.168.194.68   k8s-worker1   <none>           <none>
+test-764c85dd84-58g2r   1/1     Running   0          111s   192.168.194.70   k8s-worker1   <none>           <none>
+test-764c85dd84-dfdmc   1/1     Running   0          111s   192.168.194.67   k8s-worker1   <none>           <none>
+test-764c85dd84-l7skq   1/1     Running   0          10m    192.168.194.66   k8s-worker1   <none>           <none>
+test-764c85dd84-p6w22   1/1     Running   0          111s   192.168.194.71   k8s-worker1   <none>           <none>
+test-764c85dd84-rbwtk   1/1     Running   0          111s   192.168.194.72   k8s-worker1   <none>           <none>
+test-764c85dd84-slsbw   1/1     Running   0          111s   192.168.194.73   k8s-worker1   <none>           <none>
+test-764c85dd84-x5qrq   1/1     Running   0          10m    192.168.194.65   k8s-worker1   <none>           <none>
+test-764c85dd84-zkgj5   1/1     Running   0          111s   192.168.194.69   k8s-worker1   <none>           <none>
+cloud_user@k8s-control:~$ 
+cloud_user@k8s-control:~$ 
+
+
