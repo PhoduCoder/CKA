@@ -10,4 +10,5 @@ the default location setup by kubeadm is '/etc/kubernetes/manifests/'
 When a kubelet creates a static pod, it will automatically also create a mirror pod for each static pod
 
 Think of it as a ghost representation of the static pod, but you cannot make any changes to it. 
+You can view the pods, but not perform any actions on it
 
