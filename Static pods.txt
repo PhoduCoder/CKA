@@ -1,0 +1,13 @@
+pods managed by kubelet
+
+No need for a k8s API server
+
+Path on the node, if you place manifest there, it will create a new pod.
+
+This location is configurable , you can pass arguments to your kubelet that define where this location is going to be,
+the default location setup by kubeadm is '/etc/kubernetes/manifests/'
+
+When a kubelet creates a static pod, it will automatically also create a mirror pod for each static pod
+
+Think of it as a ghost representation of the static pod, but you cannot make any changes to it. 
+
